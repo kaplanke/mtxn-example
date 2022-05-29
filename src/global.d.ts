@@ -1,4 +1,4 @@
-import { Pool } from "mysql";
+import { Pool } from "mysql2";
 import { Sequelize, ModelStatic } from "sequelize";
 import { createClient } from "redis";
 

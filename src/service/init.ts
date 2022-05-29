@@ -1,7 +1,9 @@
-import mysql from "mysql";
+import mysql from "mysql2";
 import RedisMemoryServer from "redis-memory-server";
 import { Sequelize, STRING, Model } from "sequelize";
 import { createClient } from "redis";
+import log4js from "log4js";
+
 
 
 const dbConfig = {
@@ -15,20 +17,33 @@ const dbConfig = {
 
 export default async () => {
 
+    // init logger
+    log4js.configure({
+        appenders: { 'out': { type: 'stdout' } },
+        categories: {
+            default: { appenders: ['out'], level: 'debug' },
+            MultiTxnMngr: { appenders: ['out'], level: 'debug' }
+        }
+    });
+
     // init Mysql
     global.mysqlPool = mysql.createPool(dbConfig);
 
     // init sequelize
     global.sequelize = new Sequelize(
-        "mysql://" + dbConfig.host + "/" + dbConfig.database,
+        dbConfig.database,
         dbConfig.user,
         dbConfig.password,
-        { dialect: 'mysql', logging: false }
-    );
+        {
+            host: "localhost",
+            dialect: "mysql"
+        });
+
     const User = sequelize.define("User", {
         email: {
             type: STRING,
-            primaryKey: true
+            primaryKey: true,
+            validate: { notEmpty: true }
         },
         name: {
             type: STRING,

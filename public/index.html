@@ -66,7 +66,7 @@
 
 <script>
 
-    let usersTable = $('#users').DataTable({
+    const usersTable = $('#users').DataTable({
         ajax: {
             url: '/users',
             dataSrc: '',
@@ -74,7 +74,7 @@
         columns: [
             { data: 'name' },
             { data: 'surname' },
-
+            { data: 'email' },
         ],
         paging: false,
         searching: false,
@@ -87,8 +87,8 @@
             type: "POST",
             url: "/users/create",
             data: formData,
-            success: (data) => { console.log(data) },
-            error: (err) => { alert("Error occurred"); console.log(err) },
+            success: (data) => { usersTable.clear().rows.add(data).draw(); },
+            error: (err) => { alert("Error occurred: " + err.responseJSON["error"]); },
             dataType: "json",
             contentType: "application/json"
         });
