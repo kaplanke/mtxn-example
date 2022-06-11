@@ -13,47 +13,32 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.12.1/datatables.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-print-json@1.2/dist/pretty-print-json.css">
+    <script src="https://cdn.jsdelivr.net/npm/pretty-print-json@1.2/dist/pretty-print-json.min.js"></script>
 
     <title>Multiple Transaction Manager Example</title>
 
 </head>
 
 <body class="d-flex justify-content-center">
-    <div style="max-width:1000px; text-align:center;align-content:center;">
+    <div style="text-align:center;align-content:center;">
         <br>
         <h2>Multiple Transaction Manager Example</h2>
+        <br>
         <div class="container">
             <div class="row">
-                <div class="col-xs-12 col-md-4">
-                    <form action="#" class="bordered">
-                        <div class="mb-3 mt-3">
-                            <h3>Register User</h3>
-                        </div>
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Name:</label>
-                            <input type="text" class="form-control" id="name" placeholder="Enter name" name="name">
-                        </div>
-                        <div class="mb-3">
-                            <label for="surname" class="form-label">Surname:</label>
-                            <input type="text" class="form-control" id="name" placeholder="Enter surname"
-                                name="surname">
-                        </div>
-                        <div class="mb-3 mt-3">
-                            <label for="email" class="form-label">Email:</label>
-                            <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Register</button>
-                    </form>
-                </div>
-                <div class="col-xs-12 col-md-8">
+                <div class="col-xs-12 col-md-12">
                     <div class="bordered">
-                        <h3>Users</h3>
-                        <table id="users">
+                        <h3><span>Accounts</span><span style="float:right"><i class="bi-plus-square-fill"
+                                    title="Add Account"></i></span></h3>
+                        <br>
+                        <table id="accounts" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Surname</th>
-                                    <th>Email</th>
+                                    <th>Account ID</th>
+                                    <th>Balance</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                         </table>
@@ -64,36 +49,201 @@
     </div>
 </body>
 
+
+<div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create Account</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="bordered">
+                    <div class="mb-3 mt-3">
+                        <h3 style="word-wrap:normal;">Create Account</h3>
+                    </div>
+                    <div class="mb-3">
+                        <label for="accountId" class="form-label">Account ID:</label>
+                        <input type="text" class="form-control" id="accountId" placeholder="Enter account id"
+                            name="accountId">
+                    </div>
+                    <div class="mb-3">
+                        <label for="balance" class="form-label">Balance:</label>
+                        <input type="number" class="form-control" id="balance" placeholder="Enter initial balance"
+                            name="balance">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveAccount">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="depositModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depositModalLabel">Deposit/Withdraw</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="bordered">
+                    <div class="mb-3 mt-3">
+                        <h3 style="word-wrap:normal;" id="depositTitle"></h3>
+                    </div>
+                    <input type="hidden" id="accountId" />
+                    <div class="mb-3">
+                        <label for="balance" class="form-label">Enter New Balance:</label>
+                        <input type="number" class="form-control" id="balance" placeholder="Enter New balance"
+                            name="balance">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="updateAccount">Deposit / Withdraw</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="statementModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depositModalLabel">Account Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <pre id="accountDetail"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+    style="position: absolute; top: 0; right: 0;z-index: 9999999;" data-delay="3000">
+    <div class="toast-header">
+        <img class="rounded mr-2" />
+        <strong class="mr-auto"></strong>
+        <button type="button" class="ml-2 mb-1 close right" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
 <script>
 
-    const usersTable = $('#users').DataTable({
+
+    const accountsTable = $('#accounts').DataTable({
         ajax: {
-            url: '/users',
+            url: '/accounts',
             dataSrc: '',
         },
         columns: [
-            { data: 'name' },
-            { data: 'surname' },
-            { data: 'email' },
+            { data: 'accountId' },
+            { data: 'balance' },
+            {
+                data: null,
+                className: 'center',
+                defaultContent: '   <i class="bi-pencil-fill" title="Deposit/Withdraw"> </i>&nbsp; \
+                                    <i class="bi-search" title="Statement"></i>&nbsp; \
+                                    <i class="bi-trash3-fill" title="Remove Statement"></i>',
+            }
         ],
         paging: false,
         searching: false,
         info: false
     });
 
-    $("button[type='submit']").on("click", (event) => {
-        var formData = JSON.stringify($(event.currentTarget).parent().serializeArray());
+    $("#saveAccount").on("click", (event) => {
+        var formData = JSON.stringify($(event.currentTarget).parent().parent().serializeArray());
         $.ajax({
             type: "POST",
-            url: "/users/create",
+            url: "/accounts/create",
             data: formData,
-            success: (data) => { usersTable.clear().rows.add(data).draw(); },
-            error: (err) => { alert("Error occurred: " + err.responseJSON["error"]); },
+            success: (data) => { accountsTable.clear().rows.add(data).draw(); showMessage("OK", "success"); },
+            error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
             dataType: "json",
             contentType: "application/json"
         });
         return false;
     });
+
+    $("#updateAccount").on("click", (event) => {
+        var formData = JSON.stringify($(event.currentTarget).parent().parent().serializeArray());
+        $.ajax({
+            type: "POST",
+            url: "/accounts/" + $("#depositModal #accountId").val(),
+            data: formData,
+            success: (data) => { accountsTable.clear().rows.add(data).draw(); showMessage("OK", "success"); },
+            error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
+            dataType: "json",
+            contentType: "application/json"
+        });
+        return false;
+    });
+
+    $(".bi-plus-square-fill").on("click", () => {
+        $("#accountModal form").trigger("reset");
+        $("#accountModal").modal('show');
+    });
+
+    accountsTable.on('draw', function () {
+        $(".bi-trash3-fill").on("click", () => {
+            let id = accountsTable.row($(event.currentTarget).parent().parent()).data().accountId;
+            $.ajax({
+                type: "POST",
+                url: "/accounts/" + id + "/delete",
+                data: {},
+                success: (data) => { accountsTable.clear().rows.add(data).draw(); showMessage("OK", "success"); },
+                error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
+                dataType: "json",
+                contentType: "application/json"
+            });
+        });
+        $(".bi-pencil-fill").on("click", () => {
+            let id = accountsTable.row($(event.currentTarget).parent().parent()).data().accountId;
+            let bal = accountsTable.row($(event.currentTarget).parent().parent()).data().balance;
+            $("#depositModal #accountId").val(id);
+            $("#depositModal #balance").val(bal)
+            $("#depositTitle").html("Deposit / Withdraw for account id " + id);
+            $("#depositModal").modal('show');
+        });
+        $(".bi-search").on("click", () => {
+            let id = accountsTable.row($(event.currentTarget).parent().parent()).data().accountId;
+            $.ajax({
+                type: "GET",
+                url: "/accounts/" + id,
+                data: {},
+                success: (data) => {
+                    $("#accountDetail").html(prettyPrintJson.toHtml(data));
+                    $("#statementModal").modal('show');
+                },
+                error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
+                dataType: "json",
+                contentType: "application/json"
+            });
+
+        });
+
+    });
+    function showMessage(msg, type) {
+        $(".toast .mr-auto").html(msg);
+        let color = (type == "info" ? "blue" : type == "success" ? "green" : "red");
+        $(".toast .mr-auto").attr("style", "width:100%;color:" + color)
+        $(".toast").toast("show");
+    }
 
 </script>
 <style>
@@ -104,6 +254,10 @@
         padding: 10px;
         text-align: left;
         align-content: left;
+    }
+
+    i {
+        cursor: pointer;
     }
 </style>
 

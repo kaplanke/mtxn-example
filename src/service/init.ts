@@ -1,8 +1,11 @@
-import mysql from "mysql2";
-import RedisMemoryServer from "redis-memory-server";
-import { Sequelize, STRING, Model } from "sequelize";
-import { createClient } from "redis";
 import log4js from "log4js";
+import mysql from "mysql2";
+import { createClient } from "redis";
+import RedisMemoryServer from "redis-memory-server";
+import { Sequelize, STRING, INTEGER } from "sequelize";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
+import mongoose, { Mongoose, Schema, Model, Date } from "mongoose";
+
 
 
 
@@ -39,23 +42,21 @@ export default async () => {
             dialect: "mysql"
         });
 
-    const User = sequelize.define("User", {
-        email: {
+    const Account = sequelize.define("Account", {
+        accountId: {
             type: STRING,
             primaryKey: true,
             validate: { notEmpty: true }
         },
-        name: {
-            type: STRING,
-        },
-        surname: {
-            type: STRING,
+        balance: {
+            type: INTEGER,
+            validate: { min: 0 }
         }
 
     });
     await sequelize.sync({ force: true });
 
-    global.models = { "User": User };
+    global.seqModels = { "Account": Account };
 
     // init redis & redisClient
     const redisServer = new RedisMemoryServer();
@@ -63,6 +64,22 @@ export default async () => {
     let port = await redisServer.getPort();
     global.redisClient = createClient({ url: "redis://" + host + ":" + port });
     await global.redisClient.connect();
+
+
+    //init mongodb
+    const mongoServer = await MongoMemoryReplSet.create({ replSet: { count: 4 } });
+    const mongoServerUri = mongoServer.getUri();
+    const theMongoose = await mongoose.connect(mongoServerUri);
+    const statementModel = theMongoose.model(
+        'Statement',
+        new Schema({
+            accountId: String,
+            date: Date,
+            desc: String
+        })
+    );
+    global.mongoose = theMongoose;
+    global.mongoModels = { "Statement": statementModel };
 
     console.log("Initialization Completed");
 
