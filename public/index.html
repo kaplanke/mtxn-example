@@ -115,7 +115,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="statementModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="activityModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -132,7 +132,7 @@
 </div>
 
 <div class="toast" role="alert" aria-live="assertive" aria-atomic="true"
-    style="position: absolute; top: 0; right: 0;z-index: 9999999;" data-delay="3000">
+    style="position: absolute; top: 0; right: 0;z-index: 9999999;" data-delay="5000">
     <div class="toast-header">
         <img class="rounded mr-2" />
         <strong class="mr-auto"></strong>
@@ -145,6 +145,9 @@
 <script>
 
 
+    /*************************/
+    /* init accounts table   */
+    /*************************/
     const accountsTable = $('#accounts').DataTable({
         ajax: {
             url: '/accounts',
@@ -157,48 +160,18 @@
                 data: null,
                 className: 'center',
                 defaultContent: '   <i class="bi-pencil-fill" title="Deposit/Withdraw"> </i>&nbsp; \
-                                    <i class="bi-search" title="Statement"></i>&nbsp; \
-                                    <i class="bi-trash3-fill" title="Remove Statement"></i>',
+                                    <i class="bi-search" title="Account Activities"></i>&nbsp; \
+                                    <i class="bi-trash3-fill" title="Remove Account"></i>',
             }
         ],
         paging: false,
         searching: false,
         info: false
     });
-
-    $("#saveAccount").on("click", (event) => {
-        var formData = JSON.stringify($(event.currentTarget).parent().parent().serializeArray());
-        $.ajax({
-            type: "POST",
-            url: "/accounts/create",
-            data: formData,
-            success: (data) => { accountsTable.clear().rows.add(data).draw(); showMessage("OK", "success"); },
-            error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
-            dataType: "json",
-            contentType: "application/json"
-        });
-        return false;
-    });
-
-    $("#updateAccount").on("click", (event) => {
-        var formData = JSON.stringify($(event.currentTarget).parent().parent().serializeArray());
-        $.ajax({
-            type: "POST",
-            url: "/accounts/" + $("#depositModal #accountId").val(),
-            data: formData,
-            success: (data) => { accountsTable.clear().rows.add(data).draw(); showMessage("OK", "success"); },
-            error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
-            dataType: "json",
-            contentType: "application/json"
-        });
-        return false;
-    });
-
-    $(".bi-plus-square-fill").on("click", () => {
-        $("#accountModal form").trigger("reset");
-        $("#accountModal").modal('show');
-    });
-
+        
+    /********************************/
+    /* bind account table actions   */
+    /********************************/
     accountsTable.on('draw', function () {
         $(".bi-trash3-fill").on("click", () => {
             let id = accountsTable.row($(event.currentTarget).parent().parent()).data().accountId;
@@ -228,7 +201,7 @@
                 data: {},
                 success: (data) => {
                     $("#accountDetail").html(prettyPrintJson.toHtml(data));
-                    $("#statementModal").modal('show');
+                    $("#activityModal").modal('show');
                 },
                 error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
                 dataType: "json",
@@ -238,6 +211,52 @@
         });
 
     });
+
+
+    /********************/
+    /* create account   */
+    /********************/
+    $("#saveAccount").parent().parent().keydown((e) => { e.keyCode == 13 && $("#saveAccount").click()});
+    $("#saveAccount").on("click", (event) => {
+        var formData = JSON.stringify($(event.currentTarget).parent().parent().serializeArray());
+        $.ajax({
+            type: "POST",
+            url: "/accounts/create",
+            data: formData,
+            success: (data) => { accountsTable.clear().rows.add(data).draw(); showMessage("OK", "success"); },
+            error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
+            dataType: "json",
+            contentType: "application/json"
+        });
+        return false;
+    });
+
+    /********************/
+    /* update account   */
+    /********************/
+    $("#updateAccount").parent().parent().keydown((e) => { e.keyCode == 13 && $("#updateAccount").click()});
+    $("#updateAccount").on("click", (event) => {
+        var formData = JSON.stringify($(event.currentTarget).parent().parent().serializeArray());
+        $.ajax({
+            type: "POST",
+            url: "/accounts/" + $("#depositModal #accountId").val(),
+            data: formData,
+            success: (data) => { accountsTable.clear().rows.add(data).draw(); showMessage("OK", "success"); },
+            error: (err) => { showMessage("Error occurred: " + err.responseJSON["error"]); },
+            dataType: "json",
+            contentType: "application/json"
+        });
+        return false;
+    });
+
+
+    // open new account form
+    $(".bi-plus-square-fill").on("click", () => {
+        $("#accountModal form").trigger("reset");
+        $("#accountModal").modal('show');
+    });
+
+    // toaster utility
     function showMessage(msg, type) {
         $(".toast .mr-auto").html(msg);
         let color = (type == "info" ? "blue" : type == "success" ? "green" : "red");

@@ -26,7 +26,6 @@
   "dependencies": {
     "multiple-transaction-manager": "file:../mtxn/dist/multiple-transaction-manager-1.0.1.tgz",
     "@multiple-transaction-manager/mysql": "file:../mtxn-mysql/dist/multiple-transaction-manager-mysql-1.0.1.tgz",
-    "@multiple-transaction-manager/redis": "file:../mtxn-redis/dist/multiple-transaction-manager-redis-1.0.1.tgz",
     "@multiple-transaction-manager/sequelize": "file:../mtxn-sequelize/dist/multiple-transaction-manager-sequelize-1.0.1.tgz",
     "@multiple-transaction-manager/mongodb": "file:../mtxn-mongodb/dist/multiple-transaction-manager-mongodb-1.0.1.tgz",
     "express": "4.18.1",

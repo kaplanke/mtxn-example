@@ -1,14 +1,15 @@
 import log4js from "log4js";
-import mysql from "mysql2";
-import { createClient } from "redis";
-import RedisMemoryServer from "redis-memory-server";
-import { Sequelize, STRING, INTEGER } from "sequelize";
 import { MongoMemoryReplSet } from "mongodb-memory-server";
-import mongoose, { Mongoose, Schema, Model, Date } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import mysql from "mysql2";
+import { INTEGER, Sequelize, STRING } from "sequelize";
 
 
 
-
+/*
+* Prerequisite: Change the the DB connection according to your DB credentials.
+*               PostgreSQL or MSSQL can also be used with adding related context dependencies.
+*/ 
 const dbConfig = {
     connectionLimit: 3,
     host: "localhost",
@@ -18,6 +19,9 @@ const dbConfig = {
 }
 
 
+/*
+* Init the system
+*/
 export default async () => {
 
     // init logger
@@ -38,10 +42,9 @@ export default async () => {
         dbConfig.user,
         dbConfig.password,
         {
-            host: "localhost",
-            dialect: "mysql"
+            host: dbConfig.host,
+            dialect: "mysql" // -> also change this line if you want to use any other DB instead...
         });
-
     const Account = sequelize.define("Account", {
         accountId: {
             type: STRING,
@@ -52,26 +55,16 @@ export default async () => {
             type: INTEGER,
             validate: { min: 0 }
         }
-
     });
     await sequelize.sync({ force: true });
-
     global.seqModels = { "Account": Account };
-
-    // init redis & redisClient
-    const redisServer = new RedisMemoryServer();
-    let host = await redisServer.getHost();
-    let port = await redisServer.getPort();
-    global.redisClient = createClient({ url: "redis://" + host + ":" + port });
-    await global.redisClient.connect();
-
 
     //init mongodb
     const mongoServer = await MongoMemoryReplSet.create({ replSet: { count: 4 } });
     const mongoServerUri = mongoServer.getUri();
     const theMongoose = await mongoose.connect(mongoServerUri);
-    const statementModel = theMongoose.model(
-        'Statement',
+    const activityModel = theMongoose.model(
+        'Activity',
         new Schema({
             accountId: String,
             date: Date,
@@ -79,7 +72,7 @@ export default async () => {
         })
     );
     global.mongoose = theMongoose;
-    global.mongoModels = { "Statement": statementModel };
+    global.mongoModels = { "Activity": activityModel };
 
     console.log("Initialization Completed");
 
