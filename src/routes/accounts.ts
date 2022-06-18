@@ -73,19 +73,18 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
         px[x.name] = x.value;
         return px;
     }, {});
-    seqDBContext.addFunctionTask(txnMngr, (sequelize, txn, task) => global.seqModels["Account"].create(account, { transaction: txn }));
-    seqDBContext.addTask(txnMngr, "SELECT * FROM Accounts ORDER BY accountId");
+    const newAccountTask: Task = seqDBContext.addFunctionTask(txnMngr, (sequelize, txn, task) => global.seqModels["Account"].create(account, { transaction: txn }));
     mongoContext.addFunctionTask(txnMngr,
         (mongoose, txn, task) => global.mongoModels["Activity"].create([
             {
-                accountId: account.accountId,
+                accountId: newAccountTask.getResult().accountId,
                 date: new Date(),
-                desc: "Account created."
+                desc: "Account " + account.accountName + " is created."
             }
         ], { session: txn })).exec();
-
+    seqDBContext.addTask(txnMngr, "SELECT * FROM Accounts ORDER BY accountId");
     txnMngr.exec().then((tasks: Task[]) => {
-        res.json(tasks[1].getResult().results);
+        res.json(tasks[2].getResult().results);
     }).catch((err) => {
         res.status(500).json({ error: JSON.stringify(err) })
     });
@@ -144,7 +143,7 @@ router.post("/:id", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 /*
-*   DElete an account. 
+*   Delete an account. 
 *   Mysql context is used to delete the account.
 *   Mongo context is used to add account activity.
 *   Returns account list.

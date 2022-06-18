@@ -9,7 +9,7 @@ import { INTEGER, Sequelize, STRING } from "sequelize";
 /*
 * Prerequisite: Change the the DB connection according to your DB credentials.
 *               PostgreSQL or MSSQL can also be used with adding related context dependencies.
-*/ 
+*/
 const dbConfig = {
     connectionLimit: 3,
     host: "localhost",
@@ -47,14 +47,21 @@ export default async () => {
         });
     const Account = sequelize.define("Account", {
         accountId: {
+            type: INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        accountName: {
             type: STRING,
-            primaryKey: true,
+            unique: true,
             validate: { notEmpty: true }
         },
         balance: {
             type: INTEGER,
             validate: { min: 0 }
         }
+    }, {
+        initialAutoIncrement: "100000",
     });
     await sequelize.sync({ force: true });
     global.seqModels = { "Account": Account };
@@ -66,7 +73,7 @@ export default async () => {
     const activityModel = theMongoose.model(
         'Activity',
         new Schema({
-            accountId: String,
+            accountId: Number,
             date: Date,
             desc: String
         })

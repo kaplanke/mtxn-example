@@ -37,6 +37,7 @@
                             <thead>
                                 <tr>
                                     <th>Account ID</th>
+                                    <th>Account Name</th>
                                     <th>Balance</th>
                                     <th>Actions</th>
                                 </tr>
@@ -65,9 +66,9 @@
                         <h3 style="word-wrap:normal;">Create Account</h3>
                     </div>
                     <div class="mb-3">
-                        <label for="accountId" class="form-label">Account ID:</label>
-                        <input type="text" class="form-control" id="accountId" placeholder="Enter account id"
-                            name="accountId">
+                        <label for="accountName" class="form-label">Account Name:</label>
+                        <input type="text" class="form-control" id="accountName" placeholder="Enter account name"
+                            name="accountName">
                     </div>
                     <div class="mb-3">
                         <label for="balance" class="form-label">Balance:</label>
@@ -155,6 +156,7 @@
         },
         columns: [
             { data: 'accountId' },
+            { data: 'accountName' },
             { data: 'balance' },
             {
                 data: null,
