@@ -1,5 +1,8 @@
+/* eslint-disable no-var */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pool } from "mysql2";
 import { Sequelize, ModelStatic } from "sequelize";
+import { createClient } from "redis";
 import { Mongoose, Model } from "mongoose"
 
 /*
@@ -7,6 +10,8 @@ import { Mongoose, Model } from "mongoose"
 */
 declare global {
     var mysqlPool: Pool;
+    var redisClient: ReturnType<typeof createClient>;
+    var redisQueues: { [key: string]: string; };
     var sequelize: Sequelize;
     var seqModels: { [key: string]: ModelStatic<any>; };
     var mongoose: Mongoose;

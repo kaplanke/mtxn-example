@@ -2,6 +2,8 @@ import log4js from "log4js";
 import { MongoMemoryReplSet } from "mongodb-memory-server";
 import mongoose, { Schema } from "mongoose";
 import mysql from "mysql2";
+import { createClient } from "redis";
+import RedisMemoryServer from "redis-memory-server";
 import { INTEGER, Sequelize, STRING } from "sequelize";
 
 
@@ -14,7 +16,7 @@ const dbConfig = {
     connectionLimit: 3,
     host: "localhost",
     user: "root",
-    password: "1q2w3e4r",
+    password: "changeme",
     database: "mtxnmngr",
 }
 
@@ -65,6 +67,16 @@ export default async () => {
     });
     await sequelize.sync({ force: true });
     global.seqModels = { "Account": Account };
+
+    // init redis & redisClient
+    const redisServer = new RedisMemoryServer();
+    const host = await redisServer.getHost();
+    const port = await redisServer.getPort();
+    global.redisClient = createClient({ url: "redis://" + host + ":" + port });
+    await global.redisClient.connect();
+    global.redisQueues = {};
+    global.redisQueues.REDIS_CREDIT_PROMOTION_QUEUE = "queue:creditPromotions";
+
 
     //init mongodb
     const mongoServer = await MongoMemoryReplSet.create({ replSet: { count: 4 } });
